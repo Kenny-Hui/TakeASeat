@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "takeaseat",
+  "version": "${version}",
+
+  "name": "TakeASeat",
+  "description": "Server-side seating mod.",
+  "authors": [
+    "LX86"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": "https://github.com/Kenny-Hui/TakeASeat"
+  },
+
+  "license": "MIT",
+  "icon": "assets/takeaseat/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "com.lx.takeaseat.TakeASeat"
+    ]
+  },
+  "mixins": [
+    "takeaseat.mixin.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.9",
+    "minecraft": "${minecraft_version}"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
