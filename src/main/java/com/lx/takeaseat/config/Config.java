@@ -48,9 +48,6 @@ public class Config {
                     });
                 }
 
-                //TODO: Icon
-                //TODO: README
-
                 if (jsonConfig.has("ensurePlayerWontSuffocate")) {
                     ensurePlayerWontSuffocate = jsonConfig.get("ensurePlayerWontSuffocate").getAsBoolean();
                 }

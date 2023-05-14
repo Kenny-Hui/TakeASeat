@@ -1,15 +1,15 @@
 package com.lx.takeaseat;
 
 import com.lx.takeaseat.config.Config;
-import com.lx.takeaseat.data.SittingData;
 import com.lx.takeaseat.data.BlockTagKeyWrapper;
+import com.lx.takeaseat.data.SittingData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -165,15 +165,29 @@ public class SittingManager {
     }
 
     /**
-     * Spawn a seat entity (An invisible, no gravity arrow)
+     * Spawn a seat entity (An invisible, invulnerable, no gravity armor stand)
      * @param world The world
      * @param pos A Vec3d position that the entity should spawn
      * @return The entity for the player to be ridden.
      */
     private static Entity spawnSeatEntity(World world, Vec3d pos) {
-        Entity sitEntity = EntityType.ARROW.create(world);
-        sitEntity.teleport(pos.x, pos.y, pos.z);
+        ArmorStandEntity sitEntity = new ArmorStandEntity(world, pos.x, pos.y - 1.125, pos.z) {
+
+            @Override
+            public void tick() {
+                // Always face where the player is facing
+                Entity firstPassenger = getFirstPassenger();
+                if(firstPassenger != null) {
+                    this.setHeadYaw(firstPassenger.getHeadYaw());
+                    this.setYaw(firstPassenger.getYaw());
+                    this.setPitch(firstPassenger.getPitch());
+                }
+
+                super.tick();
+            }
+        };
         sitEntity.setNoGravity(true);
+        sitEntity.setInvulnerable(true);
         sitEntity.setInvisible(true);
         world.spawnEntity(sitEntity);
         return sitEntity;
