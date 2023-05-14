@@ -36,7 +36,7 @@ public class SittingManager {
             return ActionResult.PASS;
         }
 
-        Vec3d seatPos = getSeatSpawnPos(blockState, hittedBlockPos);
+        Vec3d seatPos = getSeatSpawnPos(world, blockState, hittedBlockPos);
         Entity sitEntity = spawnSeatEntity(world, seatPos);
         player.startRiding(sitEntity);
 
@@ -138,7 +138,7 @@ public class SittingManager {
         return player.getMainHandStack().isEmpty() && player.getOffHandStack().isEmpty();
     }
 
-    private static Vec3d getSeatSpawnPos(BlockState blockState, BlockPos pos) {
+    private static Vec3d getSeatSpawnPos(World world, BlockState blockState, BlockPos pos) {
         Vec3d centeredBlockPos = Vec3d.ofBottomCenter(pos);
         if(blockState.getBlock() instanceof StairsBlock) {
             Direction dir = blockState.get(StairsBlock.FACING);
@@ -154,6 +154,11 @@ public class SittingManager {
                 double offsetY = 0.5;
                 centeredBlockPos = new Vec3d(centeredBlockPos.getX(), centeredBlockPos.getY() + offsetY, centeredBlockPos.getZ());
             }
+        }
+
+        if(blockState.isFullCube(world, pos)) {
+            double offsetY = 0.5;
+            centeredBlockPos = new Vec3d(centeredBlockPos.getX(), pos.getY() + offsetY, centeredBlockPos.getZ());
         }
 
         return centeredBlockPos;
