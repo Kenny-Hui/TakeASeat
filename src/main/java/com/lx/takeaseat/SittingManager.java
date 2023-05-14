@@ -5,7 +5,9 @@ import com.lx.takeaseat.data.SittingData;
 import com.lx.takeaseat.data.BlockTagKeyWrapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
+import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -143,7 +145,15 @@ public class SittingManager {
             double offsetX = dir.getOffsetX() * 0.25;
             double offsetY = dir.getOffsetY() * 0.25;
             double offsetZ = dir.getOffsetZ() * 0.25;
-            centeredBlockPos = new Vec3d(centeredBlockPos.x - offsetX, centeredBlockPos.y + offsetY, centeredBlockPos.z - offsetZ);
+            centeredBlockPos = new Vec3d(centeredBlockPos.getX() - offsetX, centeredBlockPos.getY() + offsetY, centeredBlockPos.getZ() - offsetZ);
+        }
+
+        if(blockState.getBlock() instanceof SlabBlock) {
+            SlabType slabType = blockState.get(SlabBlock.TYPE);
+            if(slabType == SlabType.TOP || slabType == SlabType.DOUBLE) {
+                double offsetY = 0.5;
+                centeredBlockPos = new Vec3d(centeredBlockPos.getX(), centeredBlockPos.getY() + offsetY, centeredBlockPos.getZ());
+            }
         }
 
         return centeredBlockPos;
