@@ -51,4 +51,8 @@ public class Util {
         }
         return array;
     }
+
+    public static boolean equalXZBlockPos(BlockPos pos1, BlockPos pos2) {
+        return pos1.getX() == pos2.getX() && pos1.getZ() == pos2.getZ();
+    }
 }

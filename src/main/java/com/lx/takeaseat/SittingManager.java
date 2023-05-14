@@ -109,6 +109,7 @@ public class SittingManager {
     private static boolean hasObstruction(World world, BlockPos targetBlockPos, Vec3d playerPos) {
         /* This is not a really good way and could create false positive, but I am just going to leave it to the next person viewing this source code because yes. */
         Vec3d targetPos = Util.toVec3d(targetBlockPos);
+        BlockPos playerBlockPos = Util.toBlockPos(playerPos.x, playerPos.y, playerPos.z);
         double distance = Util.euclideanDistance(targetPos, playerPos, false);
         double increment = 1 / distance;
         double progress = 0;
@@ -122,7 +123,7 @@ public class SittingManager {
             for(int i = 0; i < yDifference; i++) {
                 Vec3d lerped = targetPos.lerp(playerPos, progress);
                 BlockPos finalPos = Util.toBlockPos(lerped.x, lowestY + i, lerped.z);
-                if(finalPos.equals(targetBlockPos)) continue;
+                if(Util.equalXZBlockPos(playerBlockPos, finalPos) || finalPos.equals(targetBlockPos)) continue;
 
                 BlockState blockState = world.getBlockState(finalPos);
                 if(blockState.getCollisionShape(world, finalPos) != VoxelShapes.empty()) {
