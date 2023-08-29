@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "TakeASeat",
-  "description": "Server-side seating mod.",
+  "description": "A mod that allows you to sit on stairs and optionally other blocks!",
   "authors": [
     "LX86"
   ],
@@ -29,8 +29,5 @@
   "depends": {
     "fabricloader": ">=0.9",
     "minecraft": "${minecraft_version}"
-  },
-  "suggests": {
-    "another-mod": "*"
   }
 }

@@ -2,11 +2,12 @@ package com.lx.takeaseat;
 
 import com.lx.takeaseat.config.Config;
 import com.lx.takeaseat.data.BlockTagKeyWrapper;
-import com.lx.takeaseat.data.SittingData;
+import com.lx.takeaseat.data.SittingInstance;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
+import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -25,7 +26,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class SittingManager {
-    public static final HashMap<UUID, SittingData> playerSitting = new HashMap<>();
+    private static final HashMap<UUID, SittingInstance> playerSitting = new HashMap<>();
 
     public static ActionResult onBlockRightClick(PlayerEntity player, World world, Hand hand, BlockHitResult blockHitResult) {
         if(world.isClient() || player.isSneaking()) return ActionResult.PASS;
@@ -34,31 +35,53 @@ public class SittingManager {
 
         if(!playerCanSit(player, world, hittedBlockPos, blockState)) {
             return ActionResult.PASS;
+        } else {
+            addPlayerToSeat(world, blockState, hittedBlockPos, player);
+            return ActionResult.SUCCESS;
+        }
+    }
+
+    public static void addPlayerToSeat(World world, BlockState seatBlockState, BlockPos seatPos, PlayerEntity player) {
+        if(playerSitting.containsKey(player.getUuid())) {
+            removePlayerFromSeat(player, playerSitting.get(player.getUuid()).seatEntity);
         }
 
-        Vec3d seatPos = getSeatSpawnPos(world, blockState, hittedBlockPos);
-        Entity sitEntity = spawnSeatEntity(world, seatPos);
+        Vec3d seatEntityPos = getSeatPosition(world, seatBlockState, seatPos);
+        Entity sitEntity = spawnSeatEntity(world, seatEntityPos);
         player.startRiding(sitEntity);
 
-        playerSitting.put(player.getUuid(), new SittingData(hittedBlockPos, sitEntity));
-        return ActionResult.SUCCESS;
+        playerSitting.put(player.getUuid(), new SittingInstance(seatPos, sitEntity));
     }
 
     /**
-     * This does the necessary checking with the Config to ensure the player are allowed to sit
-     * @return Whether the player can sit
+     * This method attempts to remove the player from the seat if they are on one.
+     * @param player The player the seat is removed for
+     * @param mountedEntity Pass in if you are uncertain whether the player is currently riding a seat, or null to skip the check and always eject the player.
      */
+    public static void removePlayerFromSeat(PlayerEntity player, Entity mountedEntity) {
+        SittingInstance sittingInstance = SittingManager.playerSitting.get(player.getUuid());
+        if(sittingInstance != null) {
+            if(mountedEntity.getUuid() == sittingInstance.seatEntity.getUuid()) {
+                player.dismountVehicle();
+            }
+
+            sittingInstance.seatEntity.kill();
+            playerSitting.remove(player.getUuid());
+            TakeASeat.LOGGER.debug("[TakeASeat] Killing seat entity as player dismounted.");
+        }
+    }
+
     private static boolean playerCanSit(PlayerEntity player, World world, BlockPos hittedBlockPos, BlockState blockState) {
         Block block = blockState.getBlock();
         Identifier blockId = Util.getBlockId(block);
         if(player.isSpectator()) return false;
 
         if(playerSitting.values().stream().anyMatch(e -> e.blockPos == hittedBlockPos)) {
-            TakeASeat.LOGGER.debug("[TakeASeat] The seat is already occupied by someone else.");
+            TakeASeat.LOGGER.debug("[TakeASeat] The seat is occupied by someone else.");
             return false;
         }
 
-        if(Config.mustBeEmptyHandToSit() && !playerHandIsEmpty(player)) {
+        if(Config.mustBeEmptyHandToSit() && !Util.playerHandIsEmpty(player)) {
             TakeASeat.LOGGER.debug("[TakeASeat] Player is holding something.");
             return false;
         }
@@ -107,21 +130,21 @@ public class SittingManager {
     }
 
     private static boolean hasObstruction(World world, BlockPos targetBlockPos, Vec3d playerPos) {
-        /* This is not a really good way and could create false positive, but I am just going to leave it to the next person viewing this source code because yes. */
+        /* Jank code begins! */
         Vec3d targetPos = Util.toVec3d(targetBlockPos);
         BlockPos playerBlockPos = Util.toBlockPos(playerPos.x, playerPos.y, playerPos.z);
         double distance = Util.euclideanDistance(targetPos, playerPos, false);
         double increment = 1 / distance;
-        double progress = 0;
+        double lerpProgress = 0;
         double lowestY = Math.min(targetPos.y, playerPos.y);
         double highestY = Math.max(targetPos.y, playerPos.y);
         double yDifference = highestY - lowestY;
 
-        while(progress < 1) {
-            progress += increment;
+        while(lerpProgress < 1) {
+            lerpProgress += increment;
 
             for(int i = 0; i < yDifference; i++) {
-                Vec3d lerped = targetPos.lerp(playerPos, progress);
+                Vec3d lerped = targetPos.lerp(playerPos, lerpProgress);
                 BlockPos finalPos = Util.toBlockPos(lerped.x, lowestY + i, lerped.z);
                 if(Util.equalXZBlockPos(playerBlockPos, finalPos) || finalPos.equals(targetBlockPos)) continue;
 
@@ -135,31 +158,28 @@ public class SittingManager {
         return false;
     }
 
-    private static boolean playerHandIsEmpty(PlayerEntity player) {
-        return player.getMainHandStack().isEmpty() && player.getOffHandStack().isEmpty();
-    }
-
-    private static Vec3d getSeatSpawnPos(World world, BlockState blockState, BlockPos pos) {
+    private static Vec3d getSeatPosition(World world, BlockState blockState, BlockPos pos) {
         Vec3d centeredBlockPos = Vec3d.ofBottomCenter(pos);
         if(blockState.getBlock() instanceof StairsBlock) {
+            // This is a bit of a hack
             Direction dir = blockState.get(StairsBlock.FACING);
+            BlockHalf half = blockState.get(StairsBlock.HALF);
             double offsetX = dir.getOffsetX() * 0.25;
-            double offsetY = dir.getOffsetY() * 0.25;
+            double offsetY = half == BlockHalf.TOP ? 0.5 : 0;
             double offsetZ = dir.getOffsetZ() * 0.25;
+
             centeredBlockPos = new Vec3d(centeredBlockPos.getX() - offsetX, centeredBlockPos.getY() + offsetY, centeredBlockPos.getZ() - offsetZ);
         }
 
         if(blockState.getBlock() instanceof SlabBlock) {
             SlabType slabType = blockState.get(SlabBlock.TYPE);
             if(slabType == SlabType.TOP || slabType == SlabType.DOUBLE) {
-                double offsetY = 0.5;
-                centeredBlockPos = new Vec3d(centeredBlockPos.getX(), centeredBlockPos.getY() + offsetY, centeredBlockPos.getZ());
+                centeredBlockPos = new Vec3d(centeredBlockPos.getX(), pos.getY() + 0.5, centeredBlockPos.getZ());
             }
         }
 
         if(blockState.isFullCube(world, pos)) {
-            double offsetY = 0.5;
-            centeredBlockPos = new Vec3d(centeredBlockPos.getX(), pos.getY() + offsetY, centeredBlockPos.getZ());
+            centeredBlockPos = new Vec3d(centeredBlockPos.getX(), pos.getY() + 0.5, centeredBlockPos.getZ());
         }
 
         return centeredBlockPos;
@@ -171,8 +191,8 @@ public class SittingManager {
      * @param pos A Vec3d position that the entity should spawn
      * @return The entity for the player to be ridden.
      */
-    private static Entity spawnSeatEntity(World world, Vec3d pos) {
-        ArmorStandEntity sitEntity = new ArmorStandEntity(world, pos.x, pos.y - 1.125, pos.z) {
+    public static Entity spawnSeatEntity(World world, Vec3d pos) {
+        ArmorStandEntity sitEntity = new ArmorStandEntity(world, pos.getX(), pos.getY() - 1.125, pos.getZ()) {
 
             @Override
             public void tick() {
@@ -182,6 +202,8 @@ public class SittingManager {
                     this.setHeadYaw(firstPassenger.getHeadYaw());
                     this.setYaw(firstPassenger.getYaw());
                     this.setPitch(firstPassenger.getPitch());
+                } else {
+                    this.kill();
                 }
 
                 super.tick();

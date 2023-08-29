@@ -2,6 +2,7 @@ package com.lx.takeaseat;
 
 import com.google.gson.JsonArray;
 import net.minecraft.block.Block;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -54,5 +55,9 @@ public class Util {
 
     public static boolean equalXZBlockPos(BlockPos pos1, BlockPos pos2) {
         return pos1.getX() == pos2.getX() && pos1.getZ() == pos2.getZ();
+    }
+
+    static boolean playerHandIsEmpty(PlayerEntity player) {
+        return player.getMainHandStack().isEmpty() && player.getOffHandStack().isEmpty();
     }
 }

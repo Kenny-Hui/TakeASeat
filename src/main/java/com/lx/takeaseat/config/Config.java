@@ -28,7 +28,6 @@ public class Config {
     private static double maxDistance = 0;
 
     public static void load() {
-
         if (Files.exists(CONFIG_PATH)) {
             try {
                 allowedBlockId.clear();
@@ -68,13 +67,13 @@ public class Config {
                     maxDistance = jsonConfig.get("maxDistance").getAsDouble();
                 }
             } catch (Exception e) {
+                TakeASeat.LOGGER.warn("[TakeASeat] Unable to read config file! Regenerating one...");
                 e.printStackTrace();
                 write();
             }
         } else {
             write();
         }
-
     }
 
     public static void write() {

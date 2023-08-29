@@ -12,6 +12,10 @@ import net.minecraft.block.Block;
 
 import net.minecraft.util.Identifier;
 
+/**
+ * Wrapper to accomodate Mojang's refactoring across different versions
+ * The joy of cross version development... (None)
+ */
 public class BlockTagKeyWrapper {
     private final TagKey<Block> tagKey;
     public BlockTagKeyWrapper(TagKey<Block> tagKey) {
@@ -44,7 +48,7 @@ public class BlockTagKeyWrapper {
             return false;
         }
 
-        BlockTagKeyWrapper blockTagKeyWrapper2 = ((BlockTagKeyWrapper)o);
-        return blockTagKeyWrapper2.get().id().equals(this.tagKey.id());
+        BlockTagKeyWrapper blockTagKeyWrapper = ((BlockTagKeyWrapper)o);
+        return blockTagKeyWrapper.get().id().equals(this.tagKey.id());
     }
 }
