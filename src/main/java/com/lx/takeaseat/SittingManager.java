@@ -61,7 +61,7 @@ public class SittingManager {
     public static void removePlayerFromSeat(PlayerEntity player, Entity mountedEntity) {
         SittingInstance sittingInstance = SittingManager.playerSitting.get(player.getUuid());
         if(sittingInstance != null) {
-            if(mountedEntity.getUuid() == sittingInstance.seatEntity.getUuid()) {
+            if(mountedEntity != null && mountedEntity.getUuid() == sittingInstance.seatEntity.getUuid()) {
                 player.dismountVehicle();
             }
 
@@ -161,7 +161,6 @@ public class SittingManager {
     private static Vec3d getSeatPosition(World world, BlockState blockState, BlockPos pos) {
         Vec3d centeredBlockPos = Vec3d.ofBottomCenter(pos);
         if(blockState.getBlock() instanceof StairsBlock) {
-            // This is a bit of a hack
             Direction dir = blockState.get(StairsBlock.FACING);
             BlockHalf half = blockState.get(StairsBlock.HALF);
             double offsetX = dir.getOffsetX() * 0.25;
