@@ -17,7 +17,12 @@ public class takeaseat {
                 .then(CommandManager.literal("reload")
                         .executes(context -> {
                             Config.load();
+
+                            #if MC_VERSION >= "12000"
+                            context.getSource().sendFeedback(() -> Text.literal("Config reloaded.").formatted(Formatting.GREEN), false);
+                            #else
                             context.getSource().sendFeedback(Text.literal("Config reloaded.").formatted(Formatting.GREEN), false);
+                            #endif
                             return 1;
                         })
                 )
