@@ -25,6 +25,7 @@ public class Config {
     private static boolean mustBeEmptyHandToSit = true;
     private static boolean blockMustBeLowerThanPlayer = true;
     private static boolean mustNotBeObstructed = false;
+    private static boolean stairs025Offset = false;
     private static double maxDistance = 0;
 
     public static void load() {
@@ -49,6 +50,10 @@ public class Config {
 
                 if (jsonConfig.has("ensurePlayerWontSuffocate")) {
                     ensurePlayerWontSuffocate = jsonConfig.get("ensurePlayerWontSuffocate").getAsBoolean();
+                }
+
+                if(jsonConfig.has("stairsOffset")) {
+                    stairs025Offset = jsonConfig.get("stairsOffset").getAsBoolean();
                 }
 
                 if (jsonConfig.has("mustBeEmptyHandToSit")) {
@@ -82,6 +87,7 @@ public class Config {
             final JsonObject jsonConfig = new JsonObject();
             jsonConfig.add("allowedBlockId", Util.toJsonArray(allowedBlockId));
             jsonConfig.add("allowedBlockTag", Util.toJsonArray(allowedBlockTag));
+            jsonConfig.addProperty("stairsOffset", stairs025Offset);
             jsonConfig.addProperty("ensurePlayerWontSuffocate", ensurePlayerWontSuffocate);
             jsonConfig.addProperty("mustBeEmptyHandToSit", mustBeEmptyHandToSit);
             jsonConfig.addProperty("blockMustBeLowerThanPlayer", blockMustBeLowerThanPlayer);
@@ -116,6 +122,9 @@ public class Config {
 
     public static double maxDistance() {
         return maxDistance;
+    }
+    public static boolean stairs025Offset() {
+        return stairs025Offset;
     }
 
     public static List<BlockTagKeyWrapper> getAllowedBlockTag() {

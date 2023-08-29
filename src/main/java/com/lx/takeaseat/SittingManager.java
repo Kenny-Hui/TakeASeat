@@ -168,6 +168,11 @@ public class SittingManager {
             double offsetY = half == BlockHalf.TOP ? 0.5 : 0;
             double offsetZ = dir.getOffsetZ() * 0.25;
 
+            if(!Config.stairs025Offset()) {
+                offsetX = 0;
+                offsetZ = 0;
+            }
+
             centeredBlockPos = new Vec3d(centeredBlockPos.getX() - offsetX, centeredBlockPos.getY() + offsetY, centeredBlockPos.getZ() - offsetZ);
         }
 
