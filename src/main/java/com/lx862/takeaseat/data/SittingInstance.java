@@ -1,4 +1,4 @@
-package com.lx.takeaseat.data;
+package com.lx862.takeaseat.data;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;

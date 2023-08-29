@@ -1,11 +1,11 @@
-package com.lx.takeaseat.config;
+package com.lx862.takeaseat.config;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.lx.takeaseat.TakeASeat;
-import com.lx.takeaseat.Util;
-import com.lx.takeaseat.data.BlockTagKeyWrapper;
+import com.lx862.takeaseat.TakeASeat;
+import com.lx862.takeaseat.Util;
+import com.lx862.takeaseat.data.BlockTagKeyWrapper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
 

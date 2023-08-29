@@ -1,4 +1,4 @@
-package com.lx.takeaseat;
+package com.lx862.takeaseat;
 
 import com.google.gson.JsonArray;
 import net.minecraft.block.Block;

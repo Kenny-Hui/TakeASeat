@@ -19,7 +19,7 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.lx.takeaseat.TakeASeat"
+      "com.lx862.takeaseat.TakeASeat"
     ]
   },
   "mixins": [

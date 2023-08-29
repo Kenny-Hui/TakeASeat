@@ -1,8 +1,8 @@
-package com.lx.takeaseat;
+package com.lx862.takeaseat;
 
-import com.lx.takeaseat.config.Config;
-import com.lx.takeaseat.data.BlockTagKeyWrapper;
-import com.lx.takeaseat.data.SittingInstance;
+import com.lx862.takeaseat.config.Config;
+import com.lx862.takeaseat.data.BlockTagKeyWrapper;
+import com.lx862.takeaseat.data.SittingInstance;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;

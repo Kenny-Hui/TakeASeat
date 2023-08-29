@@ -1,9 +1,7 @@
-package com.lx.takeaseat.commands;
+package com.lx862.takeaseat.commands;
 
-import com.lx.takeaseat.config.Config;
+import com.lx862.takeaseat.config.Config;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;

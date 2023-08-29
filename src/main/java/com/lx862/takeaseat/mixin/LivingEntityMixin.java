@@ -1,6 +1,6 @@
-package com.lx.takeaseat.mixin;
+package com.lx862.takeaseat.mixin;
 
-import com.lx.takeaseat.SittingManager;
+import com.lx862.takeaseat.SittingManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;

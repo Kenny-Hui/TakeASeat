@@ -1,7 +1,7 @@
-package com.lx.takeaseat;
+package com.lx862.takeaseat;
 
-import com.lx.takeaseat.commands.takeaseat;
-import com.lx.takeaseat.config.Config;
+import com.lx862.takeaseat.commands.takeaseat;
+import com.lx862.takeaseat.config.Config;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
