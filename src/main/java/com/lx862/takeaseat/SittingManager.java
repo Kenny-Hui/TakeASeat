@@ -9,8 +9,8 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.block.StairsBlock;
 import net.minecraft.block.enums.BlockHalf;
 import net.minecraft.block.enums.SlabType;
+import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.ArmorStandEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -190,23 +190,19 @@ public class SittingManager {
     }
 
     /**
-     * Spawn a seat entity (An invisible, invulnerable, no gravity armor stand)
+     * Spawn a seat entity (An invisible, invulnerable, area effect cloud)
      * @param world The world
      * @param pos A Vec3d position that the entity should spawn
      * @return The entity for the player to be ridden.
      */
     public static Entity spawnSeatEntity(World world, Vec3d pos) {
-        ArmorStandEntity sitEntity = new ArmorStandEntity(world, pos.getX(), pos.getY() - 1.125, pos.getZ()) {
+        AreaEffectCloudEntity sitEntity = new AreaEffectCloudEntity(world, pos.getX(), pos.getY(), pos.getZ()) {
 
             @Override
             public void tick() {
                 // Always face where the player is facing
                 Entity firstPassenger = getFirstPassenger();
-                if(firstPassenger != null) {
-                    this.setHeadYaw(firstPassenger.getHeadYaw());
-                    this.setYaw(firstPassenger.getYaw());
-                    this.setPitch(firstPassenger.getPitch());
-                } else {
+                if(firstPassenger == null) {
                     this.kill();
                 }
 
@@ -216,6 +212,9 @@ public class SittingManager {
         sitEntity.setNoGravity(true);
         sitEntity.setInvulnerable(true);
         sitEntity.setInvisible(true);
+        sitEntity.setWaitTime(0);
+        sitEntity.setRadius(0);
+        sitEntity.setDuration(Integer.MAX_VALUE);
         world.spawnEntity(sitEntity);
         return sitEntity;
     }
