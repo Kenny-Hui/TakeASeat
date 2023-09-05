@@ -2,7 +2,6 @@ package com.lx862.takeaseat;
 
 import com.lx862.takeaseat.config.Config;
 import com.lx862.takeaseat.data.BlockTagKeyWrapper;
-import com.lx862.takeaseat.data.SittingInstance;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;
@@ -23,10 +22,11 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.World;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class SittingManager {
-    private static final HashMap<UUID, SittingInstance> playerSitting = new HashMap<>();
+    private static final HashMap<UUID, BlockPos> playersSitting = new HashMap<>();
 
     public static ActionResult onBlockRightClick(PlayerEntity player, World world, Hand hand, BlockHitResult blockHitResult) {
         if(world.isClient() || player.isSneaking()) return ActionResult.PASS;
@@ -42,32 +42,21 @@ public class SittingManager {
     }
 
     public static void addPlayerToSeat(World world, BlockState seatBlockState, BlockPos seatPos, PlayerEntity player) {
-        if(playerSitting.containsKey(player.getUuid())) {
-            removePlayerFromSeat(player, playerSitting.get(player.getUuid()).seatEntity);
+        if(playersSitting.containsKey(player.getUuid())) {
+            player.dismountVehicle();
         }
 
         Vec3d seatEntityPos = getSeatPosition(world, seatBlockState, seatPos);
-        Entity sitEntity = spawnSeatEntity(world, seatEntityPos);
+        Entity sitEntity = spawnSeatEntity(world, seatEntityPos, seatPos);
         player.startRiding(sitEntity);
 
-        playerSitting.put(player.getUuid(), new SittingInstance(seatPos, sitEntity));
+        playersSitting.put(player.getUuid(), seatPos);
     }
-
-    /**
-     * This method attempts to remove the player from the seat if they are on one.
-     * @param player The player the seat is removed for
-     * @param mountedEntity Pass in if you are uncertain whether the player is currently riding a seat, or null to skip the check and always eject the player.
-     */
-    public static void removePlayerFromSeat(PlayerEntity player, Entity mountedEntity) {
-        SittingInstance sittingInstance = SittingManager.playerSitting.get(player.getUuid());
-        if(sittingInstance != null) {
-            if(mountedEntity != null && mountedEntity.getUuid() == sittingInstance.seatEntity.getUuid()) {
-                player.dismountVehicle();
+    public static void removeBlockPosFromSeat(BlockPos seatPos) {
+        for(Map.Entry<UUID, BlockPos> entry : playersSitting.entrySet()) {
+            if(Util.blockPosEquals(entry.getValue(), seatPos)) {
+                playersSitting.remove(entry.getKey());
             }
-
-            sittingInstance.seatEntity.kill();
-            playerSitting.remove(player.getUuid());
-            TakeASeat.LOGGER.debug("[TakeASeat] Killing seat entity as player dismounted.");
         }
     }
 
@@ -76,8 +65,8 @@ public class SittingManager {
         Identifier blockId = Util.getBlockId(block);
         if(player.isSpectator()) return false;
 
-        if(playerSitting.values().stream().anyMatch(e -> e.blockPos == hittedBlockPos)) {
-            TakeASeat.LOGGER.debug("[TakeASeat] The seat is occupied by someone else.");
+        if(playersSitting.values().stream().anyMatch(e -> Util.blockPosEquals(e, hittedBlockPos))) {
+            TakeASeat.LOGGER.debug("[TakeASeat] The seat has already been occupied.");
             return false;
         }
 
@@ -195,7 +184,7 @@ public class SittingManager {
      * @param pos A Vec3d position that the entity should spawn
      * @return The entity for the player to be ridden.
      */
-    public static Entity spawnSeatEntity(World world, Vec3d pos) {
+    public static Entity spawnSeatEntity(World world, Vec3d pos, BlockPos seatPos) {
         AreaEffectCloudEntity sitEntity = new AreaEffectCloudEntity(world, pos.getX(), pos.getY(), pos.getZ()) {
 
             @Override
@@ -203,6 +192,7 @@ public class SittingManager {
                 // Always face where the player is facing
                 Entity firstPassenger = getFirstPassenger();
                 if(firstPassenger == null) {
+                    removeBlockPosFromSeat(seatPos);
                     this.kill();
                 }
 

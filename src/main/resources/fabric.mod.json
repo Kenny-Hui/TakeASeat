@@ -9,7 +9,7 @@
     "LX86"
   ],
   "contact": {
-    "homepage": "",
+    "homepage": "https://modrinth.com/mod/takeaseat",
     "sources": "https://github.com/Kenny-Hui/TakeASeat"
   },
 
@@ -23,11 +23,11 @@
     ]
   },
   "mixins": [
-    "takeaseat.mixin.json"
   ],
 
   "depends": {
     "fabricloader": ">=0.9",
+    "fabric": "*",
     "minecraft": "${minecraft_version}"
   }
 }

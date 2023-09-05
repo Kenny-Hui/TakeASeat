@@ -45,6 +45,10 @@ public class Util {
         return new BlockPos(MathHelper.floor(x), MathHelper.floor(y), MathHelper.floor(z));
     }
 
+    public static boolean blockPosEquals(BlockPos pos1, BlockPos pos2) {
+        return pos1.getX() == pos2.getX() && pos1.getY() == pos2.getY() && pos1.getZ() == pos2.getZ();
+    }
+
     public static JsonArray toJsonArray(Collection<?> iterable) {
         JsonArray array = new JsonArray();
         for(Object object : iterable) {
