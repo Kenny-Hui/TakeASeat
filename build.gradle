@@ -10,7 +10,7 @@ targetCompatibility = JavaVersion.VERSION_16
 
 group = project.maven_group
 
-def default_minecraft_version = "1.19.2"
+def default_minecraft_version = "1.20.2"
 def minecraft_version = project.properties.containsKey("buildVersion") ? project.getProperties().get("buildVersion") : default_minecraft_version
 def mc_version_for_split = minecraft_version.split("-")[0]
 def minecraft_major_version = mc_version_for_split.split("\\.")[0] as int // Always return 1, unless mojang goes haywire :P
@@ -22,14 +22,14 @@ def fabric_api_version = [
         "1.19.2": "0.76.1+1.19.2",
 		"1.19.3": "0.76.1+1.19.3",
 		"1.20.1": "0.88.1+1.20.1",
-		"1.20.2-pre1": "0.88.2+1.20.2"
+		"1.20.2": "0.89.1+1.20.2"
 ][minecraft_version]
 
 def yarn_mappings = [
 		"1.19.2": "1.19.2+build.28",
 		"1.19.3": "1.19.3+build.5",
 		"1.20.1": "1.20.1+build.10",
-		"1.20.2-pre1": "1.20.2-pre1+build.3"
+		"1.20.2": "1.20.2+build.1"
 ][minecraft_version]
 
 version = project.mod_version + "+mc" + minecraft_version
