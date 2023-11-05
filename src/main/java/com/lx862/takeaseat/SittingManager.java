@@ -53,7 +53,7 @@ public class SittingManager {
         playersSitting.put(player.getUuid(), seatPos);
     }
     public static void removeBlockPosFromSeat(BlockPos seatPos) {
-        for(Map.Entry<UUID, BlockPos> entry : playersSitting.entrySet()) {
+        for(Map.Entry<UUID, BlockPos> entry : new HashMap<>(playersSitting).entrySet()) {
             if(Util.blockPosEquals(entry.getValue(), seatPos)) {
                 playersSitting.remove(entry.getKey());
             }
