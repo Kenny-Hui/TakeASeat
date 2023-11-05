@@ -186,12 +186,10 @@ public class SittingManager {
      */
     public static Entity spawnSeatEntity(World world, Vec3d pos, BlockPos seatPos) {
         AreaEffectCloudEntity sitEntity = new AreaEffectCloudEntity(world, pos.getX(), pos.getY(), pos.getZ()) {
-
             @Override
             public void tick() {
-                // Always face where the player is facing
                 Entity firstPassenger = getFirstPassenger();
-                if(firstPassenger == null) {
+                if(firstPassenger == null || world.getBlockState(seatPos).isAir()) {
                     removeBlockPosFromSeat(seatPos);
                     this.kill();
                 }
