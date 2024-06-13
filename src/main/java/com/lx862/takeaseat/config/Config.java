@@ -20,7 +20,7 @@ import java.util.List;
 public class Config {
     private static final Path CONFIG_PATH = Paths.get(FabricLoader.getInstance().getConfigDir().toString(), "takeaseat.json");
     private static final List<Identifier> allowedBlockId = new ArrayList<>();
-    private static final List<BlockTagKeyWrapper> allowedBlockTag = new ArrayList<>(Arrays.asList(BlockTagKeyWrapper.from(new Identifier("stairs")), BlockTagKeyWrapper.from(new Identifier("slabs"))));
+    private static final List<BlockTagKeyWrapper> allowedBlockTag = new ArrayList<>(Arrays.asList(BlockTagKeyWrapper.from(Identifier.of("stairs")), BlockTagKeyWrapper.from(Identifier.of("slabs"))));
     private static boolean ensurePlayerWontSuffocate = true;
     private static boolean mustBeEmptyHandToSit = true;
     private static boolean blockMustBeLowerThanPlayer = true;
@@ -38,13 +38,13 @@ public class Config {
 
                 if (jsonConfig.has("allowedBlockId")) {
                     jsonConfig.getAsJsonArray("allowedBlockId").forEach(e -> {
-                        allowedBlockId.add(new Identifier(e.getAsString()));
+                        allowedBlockId.add(Identifier.of(e.getAsString()));
                     });
                 }
 
                 if (jsonConfig.has("allowedBlockTag")) {
                     jsonConfig.getAsJsonArray("allowedBlockTag").forEach(e -> {
-                        allowedBlockTag.add(BlockTagKeyWrapper.from(new Identifier(e.getAsString())));
+                        allowedBlockTag.add(BlockTagKeyWrapper.from(Identifier.of(e.getAsString())));
                     });
                 }
 

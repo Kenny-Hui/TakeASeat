@@ -12,11 +12,7 @@ import java.util.Collection;
 
 public class Util {
     public static Identifier getBlockId(Block block) {
-        #if MC_VERSION >= "11903"
-            return net.minecraft.registry.Registries.BLOCK.getId(block);
-        #else
-            return net.minecraft.util.registry.Registry.BLOCK.getId(block);
-        #endif
+        return net.minecraft.registry.Registries.BLOCK.getId(block);
     }
 
     public static double euclideanDistance(BlockPos pos1, BlockPos pos2) {
