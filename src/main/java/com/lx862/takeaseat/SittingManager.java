@@ -11,6 +11,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -37,7 +38,7 @@ public class SittingManager {
             return ActionResult.PASS;
         } else {
             addPlayerToSeat(world, blockState, hittedBlockPos, player);
-            return ActionResult.SUCCESS;
+            return ActionResult.SUCCESS_SERVER;
         }
     }
 
@@ -191,7 +192,7 @@ public class SittingManager {
                 Entity firstPassenger = getFirstPassenger();
                 if(firstPassenger == null || world.getBlockState(seatPos).isAir()) {
                     removeBlockPosFromSeat(seatPos);
-                    this.kill();
+                    this.kill((ServerWorld)world);
                 }
 
                 super.tick();
