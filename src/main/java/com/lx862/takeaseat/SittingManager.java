@@ -1,6 +1,7 @@
 package com.lx862.takeaseat;
 
 import com.lx862.takeaseat.config.Config;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;
@@ -67,7 +68,7 @@ public class SittingManager {
         Config config = TakeASeat.getConfig();
         if(player.isSpectator()) return false;
 
-        if(!player.hasPermissionLevel(config.requiredOpLevel())) {
+        if(!Permissions.check(player, "takeaseat.sit", config.requiredOpLevel())) {
             TakeASeat.LOGGER.debug("[TakeASeat] Player don't have permission to sit.");
             return false;
         }
