@@ -29,8 +29,8 @@ public class Config {
     private boolean blockMustBeLowerThanPlayer = true;
     private boolean mustNotBeObstructed = false;
     private boolean stairs025Offset = false;
+    private int requiredOpLevel = 0;
     private double maxDistance = 0;
-    private int height;
 
     public void load() {
         if (Files.exists(CONFIG_PATH)) {
@@ -57,7 +57,8 @@ public class Config {
                 mustBeEmptyHandToSit = JsonHelper.getBoolean(jsonConfig, "mustBeEmptyHandToSit", mustBeEmptyHandToSit);
                 blockMustBeLowerThanPlayer = JsonHelper.getBoolean(jsonConfig, "blockMustBeLowerThanPlayer", blockMustBeLowerThanPlayer);
                 mustNotBeObstructed = JsonHelper.getBoolean(jsonConfig, "mustNotBeObstructed", mustNotBeObstructed);
-                maxDistance = JsonHelper.getDouble(jsonConfig, "maxDistance", 0);
+                maxDistance = JsonHelper.getDouble(jsonConfig, "maxDistance", maxDistance);
+                requiredOpLevel = JsonHelper.getInt(jsonConfig, "requiredOpLevel", requiredOpLevel);
             } catch (Exception e) {
                 TakeASeat.LOGGER.warn("[TakeASeat] Unable to read config file! Regenerating one...");
                 e.printStackTrace();
@@ -80,6 +81,7 @@ public class Config {
             jsonConfig.addProperty("blockMustBeLowerThanPlayer", blockMustBeLowerThanPlayer);
             jsonConfig.addProperty("mustNotBeObstructed", mustNotBeObstructed);
             jsonConfig.addProperty("maxDistance", maxDistance);
+            jsonConfig.addProperty("requiredOpLevel", requiredOpLevel);
 
             Files.write(CONFIG_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
         } catch (Exception e) {
@@ -109,6 +111,10 @@ public class Config {
 
     public double maxDistance() {
         return maxDistance;
+    }
+
+    public int requiredOpLevel() {
+        return requiredOpLevel;
     }
 
     public boolean stairs025Offset() {

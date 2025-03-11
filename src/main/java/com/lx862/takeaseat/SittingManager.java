@@ -64,14 +64,18 @@ public class SittingManager {
     private static boolean playerCanSit(PlayerEntity player, World world, BlockPos hittedBlockPos, BlockState blockState) {
         Block block = blockState.getBlock();
         Identifier blockId = Util.getBlockId(block);
+        Config config = TakeASeat.getConfig();
         if(player.isSpectator()) return false;
+
+        if(!player.hasPermissionLevel(config.requiredOpLevel())) {
+            TakeASeat.LOGGER.debug("[TakeASeat] Player don't have permission to sit.");
+            return false;
+        }
 
         if(playersSitting.values().stream().anyMatch(e -> Util.blockPosEquals(e, hittedBlockPos))) {
             TakeASeat.LOGGER.debug("[TakeASeat] The seat has already been occupied.");
             return false;
         }
-
-        Config config = TakeASeat.getConfig();
 
         if(config.mustBeEmptyHandToSit() && !Util.playerHandIsEmpty(player)) {
             TakeASeat.LOGGER.debug("[TakeASeat] Player is holding something.");
