@@ -5,9 +5,12 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.lx862.takeaseat.TakeASeat;
 import com.lx862.takeaseat.Util;
-import com.lx862.takeaseat.data.BlockTagKeyWrapper;
+import com.lx862.takeaseat.data.TagKeyUtil;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.JsonHelper;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,22 +22,23 @@ import java.util.List;
 
 public class Config {
     private static final Path CONFIG_PATH = Paths.get(FabricLoader.getInstance().getConfigDir().toString(), "takeaseat.json");
-    private static final List<Identifier> allowedBlockId = new ArrayList<>();
-    private static final List<BlockTagKeyWrapper> allowedBlockTag = new ArrayList<>(Arrays.asList(BlockTagKeyWrapper.from(Identifier.of("stairs")), BlockTagKeyWrapper.from(Identifier.of("slabs"))));
-    private static boolean ensurePlayerWontSuffocate = true;
-    private static boolean mustBeEmptyHandToSit = true;
-    private static boolean blockMustBeLowerThanPlayer = true;
-    private static boolean mustNotBeObstructed = false;
-    private static boolean stairs025Offset = false;
-    private static double maxDistance = 0;
+    private final List<Identifier> allowedBlockId = new ArrayList<>();
+    private final List<TagKey<Block>> allowedBlockTag = new ArrayList<>(Arrays.asList(TagKeyUtil.fromBlock(Identifier.of("stairs")), TagKeyUtil.fromBlock(Identifier.of("slabs"))));
+    private boolean ensurePlayerWontSuffocate = true;
+    private boolean mustBeEmptyHandToSit = true;
+    private boolean blockMustBeLowerThanPlayer = true;
+    private boolean mustNotBeObstructed = false;
+    private boolean stairs025Offset = false;
+    private double maxDistance = 0;
+    private int height;
 
-    public static void load() {
+    public void load() {
         if (Files.exists(CONFIG_PATH)) {
             try {
                 allowedBlockId.clear();
                 allowedBlockTag.clear();
 
-                final JsonObject jsonConfig = new JsonParser().parse(String.join("", Files.readAllLines(CONFIG_PATH))).getAsJsonObject();
+                final JsonObject jsonConfig = JsonParser.parseString(String.join("", Files.readAllLines(CONFIG_PATH))).getAsJsonObject();
 
                 if (jsonConfig.has("allowedBlockId")) {
                     jsonConfig.getAsJsonArray("allowedBlockId").forEach(e -> {
@@ -44,33 +48,16 @@ public class Config {
 
                 if (jsonConfig.has("allowedBlockTag")) {
                     jsonConfig.getAsJsonArray("allowedBlockTag").forEach(e -> {
-                        allowedBlockTag.add(BlockTagKeyWrapper.from(Identifier.of(e.getAsString())));
+                        allowedBlockTag.add(TagKeyUtil.fromBlock(Identifier.of(e.getAsString())));
                     });
                 }
 
-                if (jsonConfig.has("ensurePlayerWontSuffocate")) {
-                    ensurePlayerWontSuffocate = jsonConfig.get("ensurePlayerWontSuffocate").getAsBoolean();
-                }
-
-                if(jsonConfig.has("stairsOffset")) {
-                    stairs025Offset = jsonConfig.get("stairsOffset").getAsBoolean();
-                }
-
-                if (jsonConfig.has("mustBeEmptyHandToSit")) {
-                    mustBeEmptyHandToSit = jsonConfig.get("mustBeEmptyHandToSit").getAsBoolean();
-                }
-
-                if (jsonConfig.has("blockMustBeLowerThanPlayer")) {
-                    blockMustBeLowerThanPlayer = jsonConfig.get("blockMustBeLowerThanPlayer").getAsBoolean();
-                }
-
-                if (jsonConfig.has("mustNotBeObstructed")) {
-                    mustNotBeObstructed = jsonConfig.get("mustNotBeObstructed").getAsBoolean();
-                }
-
-                if (jsonConfig.has("maxDistance")) {
-                    maxDistance = jsonConfig.get("maxDistance").getAsDouble();
-                }
+                ensurePlayerWontSuffocate = JsonHelper.getBoolean(jsonConfig, "ensurePlayerWontSuffocate", ensurePlayerWontSuffocate);
+                stairs025Offset = JsonHelper.getBoolean(jsonConfig, "stairsOffset", stairs025Offset);
+                mustBeEmptyHandToSit = JsonHelper.getBoolean(jsonConfig, "mustBeEmptyHandToSit", mustBeEmptyHandToSit);
+                blockMustBeLowerThanPlayer = JsonHelper.getBoolean(jsonConfig, "blockMustBeLowerThanPlayer", blockMustBeLowerThanPlayer);
+                mustNotBeObstructed = JsonHelper.getBoolean(jsonConfig, "mustNotBeObstructed", mustNotBeObstructed);
+                maxDistance = JsonHelper.getDouble(jsonConfig, "maxDistance", 0);
             } catch (Exception e) {
                 TakeASeat.LOGGER.warn("[TakeASeat] Unable to read config file! Regenerating one...");
                 e.printStackTrace();
@@ -81,7 +68,7 @@ public class Config {
         }
     }
 
-    public static void write() {
+    public void write() {
         try {
             TakeASeat.LOGGER.info("[TakeASeat] Writing Config...");
             final JsonObject jsonConfig = new JsonObject();
@@ -96,38 +83,39 @@ public class Config {
 
             Files.write(CONFIG_PATH, Collections.singleton(new GsonBuilder().setPrettyPrinting().create().toJson(jsonConfig)));
         } catch (Exception e) {
-            e.printStackTrace();
+            TakeASeat.LOGGER.error("", e);
         }
     }
 
-    public static boolean blockIdIsAllowed(Identifier identifier) {
+    public boolean blockIdIsAllowed(Identifier identifier) {
         return allowedBlockId.contains(identifier);
     }
 
-    public static boolean ensurePlayerWontSuffocate() {
+    public boolean ensurePlayerWontSuffocate() {
         return ensurePlayerWontSuffocate;
     }
 
-    public static boolean mustBeEmptyHandToSit() {
+    public boolean mustBeEmptyHandToSit() {
         return mustBeEmptyHandToSit;
     }
 
-    public static boolean blockMustBeLowerThanPlayer() {
+    public boolean blockMustBeLowerThanPlayer() {
         return blockMustBeLowerThanPlayer;
     }
 
-    public static boolean mustNotBeObstructed() {
+    public boolean mustNotBeObstructed() {
         return mustNotBeObstructed;
     }
 
-    public static double maxDistance() {
+    public double maxDistance() {
         return maxDistance;
     }
-    public static boolean stairs025Offset() {
+
+    public boolean stairs025Offset() {
         return stairs025Offset;
     }
 
-    public static List<BlockTagKeyWrapper> getAllowedBlockTag() {
+    public List<TagKey<Block>> getAllowedBlockTag() {
         return allowedBlockTag;
     }
 }

@@ -1,7 +1,6 @@
 package com.lx862.takeaseat;
 
 import com.lx862.takeaseat.config.Config;
-import com.lx862.takeaseat.data.BlockTagKeyWrapper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SlabBlock;
@@ -11,6 +10,7 @@ import net.minecraft.block.enums.SlabType;
 import net.minecraft.entity.AreaEffectCloudEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -43,7 +43,7 @@ public class SittingManager {
     }
 
     public static void addPlayerToSeat(World world, BlockState seatBlockState, BlockPos seatPos, PlayerEntity player) {
-        if(playersSitting.containsKey(player.getUuid())) {
+        if(player.hasVehicle()) {
             player.dismountVehicle();
         }
 
@@ -71,32 +71,34 @@ public class SittingManager {
             return false;
         }
 
-        if(Config.mustBeEmptyHandToSit() && !Util.playerHandIsEmpty(player)) {
+        Config config = TakeASeat.getConfig();
+
+        if(config.mustBeEmptyHandToSit() && !Util.playerHandIsEmpty(player)) {
             TakeASeat.LOGGER.debug("[TakeASeat] Player is holding something.");
             return false;
         }
 
-        if(!Config.blockIdIsAllowed(blockId) && !blockInTag(blockState)) {
+        if(!config.blockIdIsAllowed(blockId) && !blockInTag(blockState)) {
             TakeASeat.LOGGER.debug("[TakeASeat] Block is not allowed to sit.");
             return false;
         }
 
-        if(Config.blockMustBeLowerThanPlayer() && hittedBlockPos.getY() - 0.5 > player.getY()) {
+        if(config.blockMustBeLowerThanPlayer() && hittedBlockPos.getY() - 0.5 > player.getY()) {
             TakeASeat.LOGGER.debug("[TakeASeat] Seat Block is higher than the player.");
             return false;
         }
 
-        if(Config.maxDistance() > 0 && Util.euclideanDistance(hittedBlockPos, player.getBlockPos()) > Config.maxDistance()) {
+        if(config.maxDistance() > 0 && Util.euclideanDistance(hittedBlockPos, player.getBlockPos()) > config.maxDistance()) {
             TakeASeat.LOGGER.debug("[TakeASeat] Player is too far from seat.");
             return false;
         }
 
-        if(Config.ensurePlayerWontSuffocate() && blockAboveCanSuffocate(world, hittedBlockPos)) {
+        if(config.ensurePlayerWontSuffocate() && blockAboveCanSuffocate(world, hittedBlockPos)) {
             TakeASeat.LOGGER.debug("[TakeASeat] Player would suffocate if they tried to sit.");
             return false;
         }
 
-        if(Config.mustNotBeObstructed() && hasObstruction(world, hittedBlockPos, player.getEyePos())) {
+        if(config.mustNotBeObstructed() && hasObstruction(world, hittedBlockPos, player.getEyePos())) {
             TakeASeat.LOGGER.debug("[TakeASeat] There's a block between the player and the seat.");
             return false;
         }
@@ -111,8 +113,8 @@ public class SittingManager {
     }
 
     private static boolean blockInTag(BlockState blockState) {
-        for(BlockTagKeyWrapper tag : Config.getAllowedBlockTag()) {
-            if(blockState.isIn(tag.get())) {
+        for(TagKey<Block> tag : TakeASeat.getConfig().getAllowedBlockTag()) {
+            if(blockState.isIn(tag)) {
                 return true;
             }
         }
@@ -157,7 +159,7 @@ public class SittingManager {
             double offsetY = half == BlockHalf.TOP ? 0.5 : 0;
             double offsetZ = dir.getOffsetZ() * 0.25;
 
-            if(!Config.stairs025Offset()) {
+            if(!TakeASeat.getConfig().stairs025Offset()) {
                 offsetX = 0;
                 offsetZ = 0;
             }

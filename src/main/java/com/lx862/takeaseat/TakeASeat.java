@@ -10,15 +10,20 @@ import org.apache.logging.log4j.Logger;
 
 public class TakeASeat implements ModInitializer {
     public static final Logger LOGGER = LogManager.getLogger("TakeASeat");
+    private static final Config config = new Config();
 
     @Override
     public void onInitialize() {
         LOGGER.info("[TakeASeat] Take a seat!");
-        Config.load();
+        config.load();
 
         UseBlockCallback.EVENT.register(SittingManager::onBlockRightClick);
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             TakeASeatCommand.register("takeaseat", dispatcher);
         });
+    }
+
+    public static Config getConfig() {
+        return config;
     }
 }
