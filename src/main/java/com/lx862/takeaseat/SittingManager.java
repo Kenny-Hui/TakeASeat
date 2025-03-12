@@ -39,7 +39,7 @@ public class SittingManager {
             return ActionResult.PASS;
         } else {
             addPlayerToSeat(world, blockState, hittedBlockPos, player);
-            return ActionResult.SUCCESS_SERVER;
+            return ActionResult.SUCCESS;
         }
     }
 
@@ -199,7 +199,7 @@ public class SittingManager {
                 Entity firstPassenger = getFirstPassenger();
                 if(firstPassenger == null || world.getBlockState(seatPos).isAir()) {
                     removeBlockPosFromSeat(seatPos);
-                    this.kill((ServerWorld)world);
+                    this.kill();
                 }
 
                 super.tick();
